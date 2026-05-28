@@ -61,8 +61,8 @@ def get_pt(label: str, default: str | None = None) -> str:
     return PORTUGUESE_LABELS.get(label, default or label)
 
 
-DEFAULT_MODEL_PATH = Path("Artefatos/obesity_pipeline.joblib")
-DEFAULT_METRICS_PATH = Path("Artefatos/metrics.json")
+DEFAULT_MODEL_PATH = Path("artifacts/obesity_pipeline.joblib")
+DEFAULT_METRICS_PATH = Path("artifacts/metrics.json")
 
 
 def inject_styles() -> None:
@@ -671,7 +671,7 @@ def main() -> None:
     model = load_model(str(model_file))
     metrics = load_metrics(str(metrics_file))
 
-    preds_df = load_predictions("Artefatos/predictions.csv")
+    preds_df = load_predictions("artifacts/predictions.csv")
 
     page = st.sidebar.selectbox("Navegação", ["Predição", "Análise", "Sobre o modelo"])
 

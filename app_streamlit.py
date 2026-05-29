@@ -14,6 +14,9 @@ PORTUGUESE_LABELS = {
     # Feature names (column display)
     "Gender": "Gênero",
     "Age": "Idade",
+    "Height": "Altura",
+    "Weight": "Peso",
+    "BMI": "IMC",
     "family_history": "Histórico familiar de excesso de peso",
     "FAVC": "Consumo frequente de alimentos calóricos",
     "FCVC": "Frequência de consumo de vegetais",
@@ -26,6 +29,17 @@ PORTUGUESE_LABELS = {
     "TUE": "Tempo usando dispositivos eletrônicos",
     "CALC": "Consumo de bebida alcoólica",
     "MTRANS": "Meio de transporte",
+    "behavior_score": "Escore comportamental",
+    "risk_group": "Faixa de risco",
+    "true_risk_group": "Faixa de risco real",
+    "obesity_level": "Nível de obesidade",
+    "age_band": "Faixa etária",
+    "behavior_band": "Faixa comportamental",
+    "_y_true": "Classe real",
+    "_y_pred": "Classe prevista",
+    "mean": "Média",
+    "median": "Mediana",
+    "count": "Quantidade",
     
     # Obesity classes
     "Insufficient_Weight": "Abaixo do peso",
@@ -54,11 +68,23 @@ PORTUGUESE_LABELS = {
     "Baixo risco": "Baixo risco",
     "Risco moderado": "Risco moderado",
     "Alto risco": "Alto risco",
+
+    # Model names
+    "logistic_regression": "Regressão logística",
+    "random_forest": "Floresta aleatória",
 }
 
 def get_pt(label: str, default: str | None = None) -> str:
     """Get Portuguese translation for a label."""
     return PORTUGUESE_LABELS.get(label, default or label)
+
+
+def translate_index(index_value):
+    return get_pt(str(index_value), str(index_value))
+
+
+def translate_columns(columns) -> list[str]:
+    return [get_pt(str(column), str(column)) for column in columns]
 
 
 DEFAULT_MODEL_PATH = Path("artifacts/obesity_pipeline.joblib")
@@ -237,7 +263,7 @@ def render_training_results(metrics: dict) -> None:
     st.subheader("Resultados do treino")
 
     summary_col1, summary_col2, summary_col3 = st.columns(3)
-    summary_col1.metric("Melhor modelo", metrics["best_model"])
+    summary_col1.metric("Melhor modelo", get_pt(metrics["best_model"], metrics["best_model"]))
     summary_col2.metric("Acurácia de holdout", f"{metrics['holdout_accuracy']:.4f}")
     summary_col3.metric("Linhas pós-deduplicação", metrics["dataset_rows_after_deduplication"])
 
@@ -245,7 +271,7 @@ def render_training_results(metrics: dict) -> None:
     for model_name, model_metrics in metrics["candidate_metrics"].items():
         candidate_rows.append(
             {
-                "Modelo": model_name,
+                "Modelo": get_pt(model_name, model_name),
                 "Acurácia CV (Média)": round(model_metrics["cv_mean_accuracy"], 4),
                 "Acurácia CV (Desvio)": round(model_metrics["cv_std_accuracy"], 4),
                 "Selecionado": model_name == metrics["best_model"],
@@ -525,6 +551,7 @@ def render_behavior_dashboard(df: pd.DataFrame) -> None:
         .sort_values("mean", ascending=False)
         .round(2)
     )
+    score_table.columns = translate_columns(score_table.columns)
     st.markdown("#### Escore comportamental agregado")
     st.dataframe(score_table, use_container_width=True)
 
@@ -562,9 +589,8 @@ def render_correlation_dashboard(df: pd.DataFrame) -> None:
 
     numeric_columns = [column for column in ["Age", "FCVC", "NCP", "CH2O", "FAF", "TUE", "behavior_score"] if column in df.columns]
     corr = df[numeric_columns].corr().round(2)
-    # Translate column names for display
-    corr.index = corr.index.map(lambda x: get_pt(x, x))
-    corr.columns = corr.columns.map(lambda x: get_pt(x, x))
+    corr.index = corr.index.map(translate_index)
+    corr.columns = translate_columns(corr.columns)
     
     st.markdown("#### Matriz de correlação")
     st.dataframe(corr, use_container_width=True)
@@ -572,7 +598,14 @@ def render_correlation_dashboard(df: pd.DataFrame) -> None:
 
     st.markdown("#### Relação entre idade e comportamento")
     scatter_frame = df[["Age", "behavior_score", "risk_group"]].copy()
-    st.scatter_chart(scatter_frame, x="Age", y="behavior_score", color=None)
+    scatter_frame = scatter_frame.rename(
+        columns={
+            "Age": get_pt("Age"),
+            "behavior_score": get_pt("behavior_score"),
+            "risk_group": get_pt("risk_group"),
+        }
+    )
+    st.scatter_chart(scatter_frame, x=get_pt("Age"), y=get_pt("behavior_score"), color=None)
 
     st.markdown("#### Evolução da correlação com a idade")
     age_profile = (
@@ -580,8 +613,7 @@ def render_correlation_dashboard(df: pd.DataFrame) -> None:
         .mean()
         .round(2)
     )
-    # Translate column names for display
-    age_profile.columns = age_profile.columns.map(lambda x: get_pt(x, x))
+    age_profile.columns = translate_columns(age_profile.columns)
     st.line_chart(age_profile)
 
 

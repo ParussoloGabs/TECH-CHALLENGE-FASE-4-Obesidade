@@ -356,6 +356,7 @@ def prepare_analytics_frame(preds_df: pd.DataFrame) -> pd.DataFrame:
         labels=["Baixo", "Médio", "Alto"],
         include_lowest=True,
     )
+    df = df.rename(columns={"Grupo de Risco": "risk_group", "Faixa Etária": "age_band", "Escore Comportamental": "behavior_score", "Faixa Comportamental": "behavior_band"})
     return df
 
 

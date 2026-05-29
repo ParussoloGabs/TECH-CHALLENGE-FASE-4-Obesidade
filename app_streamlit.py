@@ -521,15 +521,13 @@ def render_behavior_dashboard(df: pd.DataFrame) -> None:
     st.dataframe(means_by_risk.round(2), use_container_width=True)
 
     score_table = (
-        df.rename(columns={"behavior_score": "Escore comportamental", "risk_group": "Grupo de risco"})
-        .groupby("risk_group")["Escore comportamental"]
+        df.groupby("risk_group")["behavior_score"]
         .agg(["mean", "median", "count"])
         .sort_values("mean", ascending=False)
         .round(2)
     )
     st.markdown("#### Escore comportamental agregado")
     st.dataframe(score_table, use_container_width=True)
-
 
 def render_segmentation_dashboard(df: pd.DataFrame) -> None:
     st.subheader("Segmentação clínica")

@@ -521,7 +521,8 @@ def render_behavior_dashboard(df: pd.DataFrame) -> None:
     st.dataframe(means_by_risk.round(2), use_container_width=True)
 
     score_table = (
-        df.groupby("risk_group")["behavior_score"]
+        df.rename(columns={"behavior_score": "Escore comportamental", "risk_group": "Grupo de risco"})
+        .groupby("risk_group")["Escore comportamental"]
         .agg(["mean", "median", "count"])
         .sort_values("mean", ascending=False)
         .round(2)

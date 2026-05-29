@@ -279,7 +279,7 @@ def build_input_frame() -> pd.DataFrame:
 
     with col1:
         gender = st.selectbox(get_pt("Gender"), [get_pt("Female"), get_pt("Male")])
-        age = st.number_input(get_pt("Age"), min_value=14.0, max_value=100.0, value=25.0, step=0.2)
+        age = st.number_input(get_pt("Age"), min_value=14, max_value=100, value=25, step=1)
         family_history = st.selectbox(get_pt("family_history"), [get_pt("no"), get_pt("yes")])
         favc = st.selectbox(get_pt("FAVC"), [get_pt("no"), get_pt("yes")])
         fcvc = st.slider(get_pt("FCVC"), min_value=1.0, max_value=3.0, value=2.0, step=0.2, help="1 - As vezes come vegetais\n| 2 - Frequentemente come vegetais\n| 3 - Sempre come vegetais")
